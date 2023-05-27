@@ -64,7 +64,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-
     @Override
     public String sendCode(String email) {
         String code = RandomUtil.randomNumbers(4);
@@ -139,16 +138,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // Generate token
         String token = JwtManager.generate(user.getEmail());
         userVO.setToken(token);
-
-        // Save user info and token in redis
-        String tokenUser = LOGIN_USER_KEY + token;
         // Manually handle or use util to convert id 'long' to 'string'.
+        // TODO 存基本信息
         Map<String, Object> userMap = BeanUtil.beanToMap(userVO, new HashMap<>(),
                 CopyOptions.create().
                         setIgnoreNullValue(true)
                 .setFieldValueEditor((fieldName, fieldValue) -> fieldValue != null ? fieldValue.toString() : null));
-        // Save userMap in redis
-        redisUtil.saveUserMap(tokenUser, userMap);
+
+        // Save user info and token in redis
+        redisUtil.saveUserMap(userMap);
         return userVO;
     }
 
@@ -165,10 +163,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public String updateToken() {
-        String email = SecurityContextUtil.getCurrentUser().getEmail();
-        // TODO save new token in redis
-
-        return JwtManager.generate(email);
+        return redisUtil.refreshToken();
     }
 
     @Override

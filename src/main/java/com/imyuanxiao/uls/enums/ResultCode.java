@@ -34,6 +34,7 @@ public enum ResultCode {
     ACCOUNT_STATE_DELETED(1012, "账号已注销"),
     CODE_EXISTS(1013, "验证码已发送，请稍后再试"),
     REGISTER_SUCCESS(1014, "Register successful"),
+    ACCOUNT_TAKEOVER(1015, "Account takeover by another user"),
 
     // 其他错误
     FAILED(2001, "操作失败"),

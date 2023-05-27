@@ -3,6 +3,7 @@ package com.imyuanxiao.uls.controller;
 
 import com.imyuanxiao.uls.annotation.ExceptionCode;
 import com.imyuanxiao.uls.enums.ResultCode;
+import com.imyuanxiao.uls.exception.AccountTakeoverException;
 import com.imyuanxiao.uls.exception.ApiException;
 import com.imyuanxiao.uls.model.vo.ResultVO;
 import lombok.extern.slf4j.Slf4j;
@@ -73,6 +74,14 @@ public class ExceptionControllerAdvice {
     public ResultVO<String> runtimeExceptionHandler(RuntimeException e) {
         // 返回自定义异常提示信息
         return new ResultVO<>(ResultCode.ERROR, "系统异常，请稍后重试");
+    }
+
+    /**
+     * 处理 LoginFilter 抛出的 AccountTakeoverException 异常
+     */
+    @ExceptionHandler(AccountTakeoverException.class)
+    public ResultVO<String> accountTakeoverExceptionHandler(AccountTakeoverException e) {
+        return new ResultVO<>(ResultCode.UNAUTHORIZED, e.getMessage());
     }
 
 }

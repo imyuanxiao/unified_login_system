@@ -1,5 +1,6 @@
 package com.imyuanxiao.uls.controller.api;
 
+import com.imyuanxiao.uls.annotation.Auth;
 import com.imyuanxiao.uls.security.JwtManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,8 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "Test Interface")
 public class TestController {
 
-    @GetMapping("/1")
-    @ApiOperation(value = "测试有权限")
+    @GetMapping("/takeover")
+    @ApiOperation(value = "测试被顶号登录")
     public String testHasAuth() {
         return "测试成功，你有权限";
     }

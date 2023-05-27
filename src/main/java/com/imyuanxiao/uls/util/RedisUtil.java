@@ -3,6 +3,9 @@ package com.imyuanxiao.uls.util;
 import cn.hutool.core.util.RandomUtil;
 import com.imyuanxiao.uls.enums.ResultCode;
 import com.imyuanxiao.uls.exception.ApiException;
+import com.imyuanxiao.uls.model.entity.User;
+import com.imyuanxiao.uls.model.vo.UserDetailsVO;
+import com.imyuanxiao.uls.security.JwtManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -31,7 +34,6 @@ public class RedisUtil {
             throw new ApiException(ResultCode.VALIDATE_FAILED, "Invalid captcha");
         }
     }
-
     public void removeCode(String email){
         stringRedisTemplate.delete(REGISTER_CODE_KEY + email);
     }
@@ -46,17 +48,40 @@ public class RedisUtil {
         stringRedisTemplate.opsForValue().set(key, code, REGISTER_CODE_TTL, TimeUnit.MINUTES);
     }
 
-    public void saveUserMap(String tokenUser, Map<String, Object> userMap){
-        stringRedisTemplate.opsForHash().putAll(tokenUser, userMap);
+    public void saveUserMap(Map<String, Object> userMap){
+        String key = LOGIN_USER_KEY + userMap.get("email");
+        stringRedisTemplate.opsForHash().putAll(key, userMap);
         // Set token expire time, which is consistent with jwt token expire time
-        stringRedisTemplate.expire(tokenUser, LOGIN_USER_TTL, TimeUnit.MINUTES);
+        stringRedisTemplate.expire(key, LOGIN_USER_TTL, TimeUnit.MINUTES);
+    }
+
+    public Map<Object, Object> getUserMap(String username){
+        String key = LOGIN_USER_KEY + username;
+        return stringRedisTemplate.opsForHash().entries(key);
     }
 
     public void removeUserMap(){
-        String token = SecurityContextUtil.getCurrentUserDetailsVO().getToken();
+        String email = SecurityContextUtil.getCurrentUserDetailsVO().getUser().getEmail();
         // Delete token from redis
-        stringRedisTemplate.delete(LOGIN_USER_KEY + token);
+        stringRedisTemplate.delete(LOGIN_USER_KEY + email);
     }
 
+    public String refreshToken(){
+
+        String email = SecurityContextUtil.getCurrentUserDetailsVO().getUser().getEmail();
+        // Rename oldKey newKey
+        String oldKey = LOGIN_USER_KEY + email;
+
+        String newToken = JwtManager.generate(email);
+        String newKey = LOGIN_USER_KEY + email;
+
+        stringRedisTemplate.rename(oldKey, newKey);
+        stringRedisTemplate.opsForHash().put(newKey, "token", newToken);
+
+        // Reset expire time
+        stringRedisTemplate.expire(newKey, LOGIN_USER_TTL, TimeUnit.MINUTES);
+
+        return newToken;
+    }
 
 }

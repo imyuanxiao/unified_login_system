@@ -1,6 +1,7 @@
 package com.imyuanxiao.uls.security;
 
 import com.imyuanxiao.uls.enums.ResultCode;
+import com.imyuanxiao.uls.exception.AccountTakeoverException;
 import com.imyuanxiao.uls.model.vo.ResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
@@ -23,10 +24,15 @@ public class MyEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException {
-        log.error(e.getMessage());
         response.setContentType("application/json;charset=utf-8");
         PrintWriter out = response.getWriter();
-        ResultVO<String> resultVO = new ResultVO<>(ResultCode.UNAUTHORIZED, "没有登录");
+        // Use attribute to return different message
+        String errorMessage = (String)request.getAttribute("errorMessage");
+        ResultVO<String> resultVO = errorMessage != null ?
+                new ResultVO<>(ResultCode.ACCOUNT_TAKEOVER,  errorMessage) :
+                new ResultVO<>(ResultCode.UNAUTHORIZED,  "Please log in") ;
+
+        log.error(e.getMessage() + errorMessage);
         out.write(resultVO.toString());
         out.flush();
         out.close();
