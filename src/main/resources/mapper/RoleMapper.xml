@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.imyuanxiao.unifiedloginsystem.mapper.RoleMapper">
+<mapper namespace="com.imyuanxiao.uls.mapper.RoleMapper">
 
-    <resultMap id="BaseResultMap" type="com.imyuanxiao.unifiedloginsystem.model.entity.Role">
+    <resultMap id="BaseResultMap" type="com.imyuanxiao.uls.model.entity.Role">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
             <result property="description" column="description" jdbcType="VARCHAR"/>
@@ -33,7 +33,7 @@
     </select>
 
 <!--    &lt;!&ndash;查询分页对象&ndash;&gt;-->
-<!--    <select id="selectPage" resultType="com.imyuanxiao.unifiedloginsystem.model.vo.RolePageVO">-->
+<!--    <select id="selectPage" resultType="com.imyuanxiao.uls.model.vo.RolePageVO">-->
 <!--        select-->
 <!--            id, name-->
 <!--        from-->

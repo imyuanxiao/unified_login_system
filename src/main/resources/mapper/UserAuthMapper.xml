@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.imyuanxiao.unifiedloginsystem.mapper.UserAuthMapper">
+<mapper namespace="com.imyuanxiao.uls.mapper.UserAuthMapper">
 
-    <resultMap id="BaseResultMap" type="com.imyuanxiao.unifiedloginsystem.model.entity.UserAuth">
+    <resultMap id="BaseResultMap" type="com.imyuanxiao.uls.model.entity.UserAuth">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="userId" column="user_id" jdbcType="BIGINT"/>
             <result property="loginType" column="login_type" jdbcType="INTEGER"/>

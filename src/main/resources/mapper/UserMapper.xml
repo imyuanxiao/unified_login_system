@@ -2,25 +2,22 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.imyuanxiao.unifiedloginsystem.mapper.UserMapper">
+<mapper namespace="com.imyuanxiao.uls.mapper.UserMapper">
 
-    <resultMap id="BaseResultMap" type="com.imyuanxiao.unifiedloginsystem.model.entity.User">
+    <resultMap id="BaseResultMap" type="com.imyuanxiao.uls.model.entity.User">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="phone" column="phone" jdbcType="VARCHAR"/>
             <result property="email" column="email" jdbcType="VARCHAR"/>
             <result property="userPassword" column="user_password" jdbcType="VARCHAR"/>
             <result property="state" column="state" jdbcType="TINYINT"/>
-            <result property="updatedTime" column="updated_time" jdbcType="TIMESTAMP"/>
-            <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,phone,email,
-        user_password,state,updated_time,
-        created_time
+        user_password,state
     </sql>
 
-    <select id="selectPage" resultType="com.imyuanxiao.unifiedloginsystem.model.vo.UserPageVO">
+    <select id="selectPage" resultType="com.imyuanxiao.uls.model.vo.UserPageVO">
         select
             id, email
         from
