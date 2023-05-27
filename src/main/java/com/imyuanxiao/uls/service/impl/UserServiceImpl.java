@@ -3,17 +3,19 @@ package com.imyuanxiao.uls.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.imyuanxiao.uls.model.entity.UserLoginHistory;
 import com.imyuanxiao.uls.model.entity.UserProfile;
 import com.imyuanxiao.uls.model.param.UserParam;
 import com.imyuanxiao.uls.model.vo.UserDetailsVO;
 import com.imyuanxiao.uls.model.vo.UserPageVO;
 import com.imyuanxiao.uls.security.JwtManager;
-import com.imyuanxiao.uls.service.UserProfileService;
+import com.imyuanxiao.uls.service.*;
 import com.imyuanxiao.uls.util.RedisUtil;
 import com.imyuanxiao.uls.util.SecurityContextUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -24,9 +26,6 @@ import com.imyuanxiao.uls.mapper.UserMapper;
 import com.imyuanxiao.uls.model.param.LoginParam;
 import com.imyuanxiao.uls.model.param.RegisterParam;
 import com.imyuanxiao.uls.model.vo.UserVO;
-import com.imyuanxiao.uls.service.PermissionService;
-import com.imyuanxiao.uls.service.RoleService;
-import com.imyuanxiao.uls.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -35,6 +34,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -61,6 +61,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Autowired
     private UserProfileService userProfileService;
+
+    @Autowired
+    private UserLoginHistoryService loginHistoryService;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -98,7 +101,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public UserVO login(LoginParam loginParam) {
+    public UserVO login(LoginParam loginParam, HttpServletRequest request) {
         // Verify user from database
         User user = this.lambdaQuery()
                 .eq(StrUtil.isNotBlank(loginParam.getEmail()), User::getEmail, loginParam.getEmail())
@@ -113,6 +116,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if(user.getState() != 0){
             throw new ApiException(user.getState() == 1 ? ResultCode.ACCOUNT_STATE_DISABLED : ResultCode.ACCOUNT_STATE_DELETED);
         }
+
+        // Save login time
+        loginHistoryService.save(new UserLoginHistory()
+                .setUserId(user.getId())
+                .setLoginTime(DateUtil.date())
+                .setUserAgent(request.getHeader("User-Agent"))
+                .setIpAddress(request.getRemoteAddr()));
+
         // Put user basic info, profile, token, permissions in UserVO object
         return getUserVO(user);
     }
@@ -139,19 +150,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String token = JwtManager.generate(user.getEmail());
         userVO.setToken(token);
         // Manually handle or use util to convert id 'long' to 'string'.
-        // TODO 存基本信息
         Map<String, Object> userMap = BeanUtil.beanToMap(userVO, new HashMap<>(),
                 CopyOptions.create().
                         setIgnoreNullValue(true)
                 .setFieldValueEditor((fieldName, fieldValue) -> fieldValue != null ? fieldValue.toString() : null));
-
         // Save user info and token in redis
         redisUtil.saveUserMap(userMap);
         return userVO;
     }
 
     @Override
-    public void logout() {
+    public void logout(HttpServletRequest request) {
+        loginHistoryService.save(new UserLoginHistory()
+                .setUserId(SecurityContextUtil.getCurrentUserDetailsVO().getUser().getId())
+                .setLogoutTime(DateUtil.date())
+                .setUserAgent(request.getHeader("User-Agent"))
+                .setIpAddress(request.getRemoteAddr()));
         redisUtil.removeUserMap();
     }
 

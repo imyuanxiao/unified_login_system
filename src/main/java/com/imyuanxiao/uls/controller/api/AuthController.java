@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -72,25 +73,23 @@ public class AuthController {
     */
     @PostMapping("/login")
     @ApiOperation(value = "Login using password")
-    public UserVO login(@RequestBody  @Valid LoginParam param){
-        return userService.login(param);
+    public UserVO login(@RequestBody  @Valid LoginParam param, HttpServletRequest request){
+        return userService.login(param, request);
     }
 
     @GetMapping("/logout")
     @ApiOperation(value = "Logout")
-    public void logout(){ userService.logout();}
+    public void logout(HttpServletRequest request){ userService.logout(request);}
 
     @GetMapping("/update-token")
     @ApiOperation(value = "Update token")
     public String updateToken(){
         return userService.updateToken();
     }
-
     @GetMapping("/my-permission")
     @ApiOperation(value = "Get UserVO every time route changes")
     public Set<Long> myPermission(){
         return userService.myPermission();
     }
-
 
 }

@@ -10,10 +10,11 @@
             <result property="loginTime" column="login_time" jdbcType="TIMESTAMP"/>
             <result property="logoutTime" column="logout_time" jdbcType="TIMESTAMP"/>
             <result property="ipAddress" column="ip_address" jdbcType="VARCHAR"/>
+            <result property="userAgent" column="user_agent" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,user_id,login_time,
-        logout_time,ip_address
+        logout_time,ip_address, user_agent
     </sql>
 </mapper>

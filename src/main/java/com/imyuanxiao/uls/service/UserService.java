@@ -10,6 +10,7 @@ import com.imyuanxiao.uls.model.param.UserParam;
 import com.imyuanxiao.uls.model.vo.UserPageVO;
 import com.imyuanxiao.uls.model.vo.UserVO;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Set;
 
 /**
@@ -28,7 +29,7 @@ public interface UserService extends IService<User> {
      * @param loginParam Login form parameters
      * @return If the login is successful, the VO object is returned, and an exception is thrown if it fails
      **/
-    UserVO login(LoginParam loginParam);
+    UserVO login(LoginParam loginParam, HttpServletRequest request);
 
     /**
      * Register
@@ -76,5 +77,5 @@ public interface UserService extends IService<User> {
 
     String sendCode(String email);
 
-    void logout();
+    void logout(HttpServletRequest request);
 }

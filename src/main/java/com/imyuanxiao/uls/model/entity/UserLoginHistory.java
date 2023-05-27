@@ -47,6 +47,9 @@ public class UserLoginHistory implements Serializable {
     @TableField(value = "ip_address")
     private String ipAddress;
 
+    @TableField(value = "user_agent")
+    private String userAgent;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }
